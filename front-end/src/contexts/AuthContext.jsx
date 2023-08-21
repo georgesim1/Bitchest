@@ -1,10 +1,34 @@
-import React, { useContext, useState, createContext } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 
-const AuthContext = createContext({
-    isLoggedIn: false,
-    login: () => {},
-    logout: () => {}
-});
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        // On component mount, check if user data is in local storage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    const login = (userData) => {
+        setUser(userData);
+    };
+
+    const logout = () => {
+        // Clear user data from local storage and context
+        localStorage.removeItem('user');
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, login, logout, setUser }}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -15,24 +39,3 @@ export const useAuth = () => {
 
     return context;
 }
-
-export const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
-
-    const login = () => {
-        setIsLoggedIn(true);
-        localStorage.setItem('isLoggedIn', 'true');
-    };
-
-    const logout = () => {
-        setIsLoggedIn(false);
-        localStorage.setItem('isLoggedIn', 'false');
-    };
-
-    return (
-        <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
-}
-

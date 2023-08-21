@@ -18,12 +18,14 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $this->faker->name(), // $this->faker-> - if there are problems you can delete the ($this->) part and just leave faker
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
+            'portfolio' => $this->randomFloat(5, 15)  // Generating a random float for portfolio between 5 and 15. If you want to add other numbers change 5 and 15
         ];
+        
     }
 
     /**
@@ -34,5 +36,23 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Generate a random float number between two numbers
+     *
+     * @param float $min Minimum value
+     * @param float $max Maximum value
+     * @param int $precision Number of decimal places
+     * @return float Random float value
+     */
+    private function randomFloat($min = 0, $max = 1, $precision = 2): float
+    {
+        if ($min > $max) {
+            throw new \InvalidArgumentException("Minimum value cannot be greater than the maximum value.");
+        }
+
+        $factor = pow(10, $precision);
+        return mt_rand($min * $factor, $max * $factor) / $factor;
     }
 }

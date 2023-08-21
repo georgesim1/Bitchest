@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+
 
 class UserController extends Controller
 {
@@ -11,6 +13,7 @@ class UserController extends Controller
     public function index()
     {
         return response()->json(User::all(), 200);
+        
     }
 
     // Store - Create a new user
@@ -64,6 +67,7 @@ class UserController extends Controller
     // Destroy - Delete a user by ID
     public function destroy($id)
     {
+       try {
         $user = User::find($id);
 
         if(!$user) {
@@ -73,5 +77,8 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'User deleted successfully'], 200);
+       } catch (\Throwable $th) {
+        return response()->json(['message' => $th->getMessage()], 400);
+       }
     }
 }
