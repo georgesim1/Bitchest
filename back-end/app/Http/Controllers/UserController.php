@@ -47,22 +47,24 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::find($id);
-
-        if(!$user) {
+    
+        if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
+    
         $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'sometimes|required|string|min:6',
-            // Add validation rules for other fields if needed
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'sometimes|string|min:6',
+            'usertype' => 'sometimes|string|max:255', // Adding usertype validation
+            'portfolio' => 'sometimes|string|max:255'  // Adjust this if there's a specific validation you want
         ]);
-
+    
         $user->update($validatedData);
-
+    
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
+    
 
     // Destroy - Delete a user by ID
     public function destroy($id)

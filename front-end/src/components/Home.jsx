@@ -8,41 +8,63 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 export default function BasicTable() {
   const [users, setUsers] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editedUser, setEditedUser] = useState({});
 
   useEffect(() => {
-    // Fetch the users when the component mounts
-    axios.get('http://localhost:8000/api/users')  // Adjust the URL to point to your backend's endpoint
+    axios.defaults.withCredentials = true;
+    axios.get('http://localhost:8000/api/users')
       .then(response => {
         setUsers(response.data);
       })
       .catch(error => {
         console.error("Error fetching users:", error);
       });
-  }, []);  // The empty dependency array means this useEffect will run once when the component mounts
+  }, []);
 
-  const handleEdit = (userId) => {
-    // For now, we'll just log the user's ID.
-    // Later on, you might want to redirect to an edit page using something like React Router.
-    console.log(`Redirecting to edit page for user with ID: ${userId}`);
+  const startEdit = (user) => {
+    setEditingId(user.id);
+    setEditedUser(user);
   };
-  
+
+  const handleEditChange = (field, value) => {
+    setEditedUser(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEdit = async (userId) => {
+    try {
+      axios.defaults.withCredentials = true;
+      const response = await axios.put(`http://localhost:8000/api/users/${userId}`, editedUser);
+
+      const updatedUsers = users.map(user => 
+        user.id === userId ? response.data.user : user
+      );
+      setUsers(updatedUsers);
+    
+      console.log(`User with ID: ${userId} updated successfully`);
+      setEditingId(null);
+      setEditedUser(null);
+
+    } catch (error) {
+      console.error(`Error updating user with ID: ${userId}. Error: ${error}`);
+    }
+  };
+
   const handleDelete = async (userId) => {
     try {
-      // Assuming your backend is set up to handle DELETE requests at this endpoint
-      axios.defaults.withCredentials = true;
+      await axios.get('http://localhost:8000/sanctum/csrf-cookie');
       await axios.delete(`http://localhost:8000/api/users/${userId}`);
       
-      // If successful, remove the user from the UI list
       const updatedUsers = users.filter(user => user.id !== userId);
-      setUsers(updatedUsers);  // Assuming you have users in a state and a setUsers function to update it.
-  
+      setUsers(updatedUsers);
+      
       console.log(`User with ID: ${userId} deleted successfully`);
     } catch (error) {
       console.log(error);
-      // console.error(`Error deleting user with ID: ${userId}. Error: ${error}`);
     }
   };
 
@@ -59,18 +81,60 @@ export default function BasicTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell component="th" scope="row">{user.name}</TableCell>
-              <TableCell align="right">{user.email}</TableCell>
-              <TableCell align="right">{user.usertype}</TableCell>
-              <TableCell align="right">{user.portfolio}</TableCell>
-              <TableCell align="center">
-                <Button variant="outlined" color="primary" onClick={()=>handleEdit(user.id)}>Edit</Button>
-                <Button variant="outlined" color="secondary" onClick={()=>handleDelete(user.id)}>Delete</Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {users.map((user, index) => {
+            const uniqueKey = user.id || `backup-${index}`; // Use index as a backup key if user.id is undefined
+
+            return (
+              <TableRow key={uniqueKey}>
+                <TableCell component="th" scope="row">
+                  {editingId === user.id ? (
+                    <TextField
+                      value={editedUser.name}
+                      onChange={e => handleEditChange('name', e.target.value)}
+                    />
+                  ) : user.name}
+                </TableCell>
+                <TableCell align="right">
+                  {editingId === user.id ? (
+                    <TextField
+                      value={editedUser.email}
+                      onChange={e => handleEditChange('email', e.target.value)}
+                    />
+                  ) : user.email}
+                </TableCell>
+                <TableCell align="right">
+                  {editingId === user.id ? (
+                    <TextField
+                      value={editedUser.usertype}
+                      onChange={e => handleEditChange('usertype', e.target.value)}
+                    />
+                  ) : user.usertype}
+                </TableCell>
+                <TableCell align="right">
+                  {editingId === user.id ? (
+                    <TextField
+                      value={editedUser.portfolio}
+                      onChange={e => handleEditChange('portfolio', e.target.value)}
+                    />
+                  ) : user.portfolio}
+                </TableCell>
+                <TableCell align="center">
+                  {editingId === user.id ? (
+                    <Button variant="outlined" color="primary" onClick={() => handleEdit(user.id)}>
+                      Save
+                    </Button>
+                  ) : (
+                    <Button variant="outlined" color="primary" onClick={() => startEdit(user)}>
+                      Edit
+                    </Button>
+                  )}
+                  <Button variant="outlined" color="secondary" onClick={() => handleDelete(user.id)}>
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
