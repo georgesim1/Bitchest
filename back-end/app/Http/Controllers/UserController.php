@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 
@@ -83,4 +84,18 @@ class UserController extends Controller
         return response()->json(['message' => $th->getMessage()], 400);
        }
     }
+
+
+    public function getPortfolio(Request $request)
+    {
+        $user = $request->user();
+    
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+    
+        return response()->json(['portfolio' => $user->portfolio], 200);
+    }
+    
+
 }

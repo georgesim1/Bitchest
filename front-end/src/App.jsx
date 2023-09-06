@@ -2,11 +2,11 @@ import { BrowserRouter as Router,Route,Routes} from 'react-router-dom';
 import Login from './components/Login';
 import Home from './components/Home';
 import Profile from './components/Profile.jsx';
-import CryptoList from './components/CryptoList.jsx';
+import CryptoList from './components/CryptoList';
 import Navbar from './components/Navbar.jsx';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/material';
 
 // import CryptoList from './components/CryptoList';
 const drawerWidth = 240;

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CryptoController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +18,7 @@ use App\Http\Controllers\UserController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/', [NFTController::class, 'index'])->middleware(['auth', 'admin'])->name('home'); ;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -35,6 +38,12 @@ Route::get('user', function () {
 
     return response()->json(['message' => 'Not logged in'], 401);
 })->name('api.user');
+
+// Get user balance
+Route::middleware(['auth:sanctum'])->get('/users/portfolio', [UserController::class, 'getPortfolio']);
+
+// Get all crypto currencies
+Route::get('/crypto', [CryptoController::class, 'getAllCryptos']);
 
 // Update a user - this assumes you have a "update" method in your UserController
 Route::put('/users/{id}', [UserController::class, 'update']);
