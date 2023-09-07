@@ -32,7 +32,7 @@ function ResponsiveDrawer(props) {
     const navigate = useNavigate();
 
     const [userType, setUserType] = useState(null);
-    const [portfolio, setPortfolio] = useState(null);
+    const [balance, setPortfolio] = useState(null);
 
  
     useEffect(() => {
@@ -44,7 +44,8 @@ function ResponsiveDrawer(props) {
         try {
             const response = await axios.get('http://localhost:8000/api/users/portfolio');
             if (response && response.data) {
-                setPortfolio(response.data.portfolio);
+                setPortfolio(response.data.balance);
+                
             }
         } catch (error) {
             console.error("Failed to fetch portfolio balance: ", error);
@@ -154,7 +155,7 @@ function ResponsiveDrawer(props) {
                         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             
         </Typography>
-        {portfolio && (
+        {balance && (
             <React.Fragment>
                 <AccountBalanceWalletIcon color="primary" sx={{ mr: 1 }} />
                 <Typography 
@@ -163,7 +164,7 @@ function ResponsiveDrawer(props) {
                     component="div" 
                     color="#000000"
                 >
-                    Portfolio Balance: ${parseFloat(portfolio).toFixed(2)}
+                    Portfolio Balance: ${parseFloat(balance).toFixed(2)}
                 </Typography>
             </React.Fragment>
         )}

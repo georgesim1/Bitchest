@@ -38,6 +38,6 @@ class Cryptocurrency extends Model
     protected $casts = [
         // 'some_attribute' => 'datetime',
     ];
-
+    
     // Define any relationships, getters, setters, or additional methods below...
 }

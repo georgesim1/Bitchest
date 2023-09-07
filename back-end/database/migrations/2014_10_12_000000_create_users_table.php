@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('usertype')->default('user');
-            $table->decimal('portfolio', 18, 8)->default(mt_rand(50000000, 150000000) / 10000000);
             $table->rememberToken();
             $table->timestamps();
         });

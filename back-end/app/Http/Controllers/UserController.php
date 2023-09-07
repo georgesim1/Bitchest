@@ -58,7 +58,6 @@ class UserController extends Controller
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:6',
             'usertype' => 'sometimes|string|max:255', // Adding usertype validation
-            'portfolio' => 'sometimes|string|max:255'  // Adjust this if there's a specific validation you want
         ]);
     
         $user->update($validatedData);
@@ -94,7 +93,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User not authenticated'], 401);
         }
     
-        return response()->json(['portfolio' => $user->portfolio], 200);
+        return response()->json(['balance' => $user->wallet->balance], 200);
     }
     
 

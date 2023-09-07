@@ -1,4 +1,4 @@
-const Home = () => {
+const Profile = () => {
     return (
       <div className="mx-auto container">
         Profile
@@ -6,4 +6,4 @@ const Home = () => {
     )
   }
   
-  export default Home
+  export default Profile

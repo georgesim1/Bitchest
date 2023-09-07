@@ -11,6 +11,11 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import GroupIcon from '@mui/icons-material/Group';
+import PortfolioIcon from '@mui/icons-material/AccountBalanceWallet';
+import ActionIcon from '@mui/icons-material/Build';
 
 export default function BasicTable() {
   const [users, setUsers] = useState([]);
@@ -18,6 +23,12 @@ export default function BasicTable() {
   const [editedUser, setEditedUser] = useState({});
   const [notification, setNotification] = useState({ message: '', severity: '' });
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
 
   useEffect(() => {
     axios.defaults.withCredentials = true;
@@ -29,6 +40,24 @@ export default function BasicTable() {
         console.error("Error fetching users:", error);
       });
   }, []);
+
+  const handleInputChange = (field, value) => {
+    setNewUser(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddUser = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+      const response = await axios.post('http://localhost:8000/api/users', newUser);
+      setUsers(prevUsers => [...prevUsers, response.data.user]);
+      setNotification({ message: `User created successfully`, severity: 'success' });
+      setOpenSnackbar(true);
+      setShowForm(false);
+      setNewUser({ name: '', email: '', password: '' });  // Reset the form
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
@@ -84,73 +113,119 @@ export default function BasicTable() {
         </Alert>
       </Snackbar>
 
+      <Button variant="contained" color="primary" onClick={() => setShowForm(!showForm)}>
+        {showForm ? 'Cancel' : 'Add New User'}
+      </Button>
+
+      {showForm && (
+        <div>
+          <TextField
+            label="Name"
+            value={newUser.name}
+            onChange={e => handleInputChange('name', e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            label="Email"
+            value={newUser.email}
+            onChange={e => handleInputChange('email', e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={newUser.password}
+            onChange={e => handleInputChange('password', e.target.value)}
+            margin="normal"
+          />
+          {/* Add other fields if required */}
+          <Button variant="contained" color="primary" onClick={handleAddUser} style={{ marginTop: '30px' }}>
+            Submit
+          </Button>
+        </div>
+      )}
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="users table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Email</TableCell>
-              <TableCell align="right">User Type</TableCell>
-              <TableCell align="right">Portfolio</TableCell>
-              <TableCell align="center">Actions</TableCell>
+              <TableCell>
+                <PersonIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                Name
+              </TableCell>
+              <TableCell align="right">
+                <EmailIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                Email
+              </TableCell>
+              <TableCell align="right">
+                <GroupIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                User Type
+              </TableCell>
+              <TableCell align="right">
+                <PortfolioIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                Balance
+              </TableCell>
+              <TableCell align="right">
+                <ActionIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => {
-              const uniqueKey = user.id || `backup-${index}`;
+  {users.map((user) => (
+    <TableRow key={user.id}>
+      <TableCell component="th" scope="row">
+        {editingId === user.id ? (
+          <TextField
+            value={editedUser.name}
+            onChange={e => handleEditChange('name', e.target.value)}
+          />
+        ) : (
+          user.name
+        )}
+      </TableCell>
+      <TableCell align="right">
+        {editingId === user.id ? (
+          <TextField
+            value={editedUser.email}
+            onChange={e => handleEditChange('email', e.target.value)}
+          />
+        ) : (
+          user.email
+        )}
+      </TableCell>
+      <TableCell align="right">
+        {editingId === user.id ? (
+          <TextField
+            value={editedUser.usertype}
+            onChange={e => handleEditChange('usertype', e.target.value)}
+          />
+        ) : (
+          user.usertype
+        )}
+      </TableCell>
+      <TableCell align="right">
+        {editingId === user.id ? (
+          <TextField
+            value={editedUser.portfolio}
+            onChange={e => handleEditChange('portfolio', e.target.value)}
+          />
+        ) : (
+          user.portfolio
+        )}
+      </TableCell>
+      <TableCell align="right">
+        {editingId === user.id ? (
+          <Button onClick={() => handleEdit(user.id)}>Save</Button>
+        ) : (
+          <Button onClick={() => startEdit(user)}>Edit</Button>
+        )}
+        <Button onClick={() => handleDelete(user.id)}>Delete</Button>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
 
-              return (
-                <TableRow key={uniqueKey}>
-                  <TableCell component="th" scope="row">
-                    {editingId === user.id ? (
-                      <TextField
-                        value={editedUser.name}
-                        onChange={e => handleEditChange('name', e.target.value)}
-                      />
-                    ) : user.name}
-                  </TableCell>
-                  <TableCell align="right">
-                    {editingId === user.id ? (
-                      <TextField
-                        value={editedUser.email}
-                        onChange={e => handleEditChange('email', e.target.value)}
-                      />
-                    ) : user.email}
-                  </TableCell>
-                  <TableCell align="right">
-                    {editingId === user.id ? (
-                      <TextField
-                        value={editedUser.usertype}
-                        onChange={e => handleEditChange('usertype', e.target.value)}
-                      />
-                    ) : user.usertype}
-                  </TableCell>
-                  <TableCell align="right">
-                    {editingId === user.id ? (
-                      <TextField
-                        value={editedUser.portfolio}
-                        onChange={e => handleEditChange('portfolio', e.target.value)}
-                      />
-                    ) : user.portfolio}
-                  </TableCell>
-                  <TableCell align="center">
-                    {editingId === user.id ? (
-                      <Button variant="outlined" color="primary" onClick={() => handleEdit(user.id)}>
-                        Save
-                      </Button>
-                    ) : (
-                      <Button variant="outlined" color="primary" onClick={() => startEdit(user)}>
-                        Edit
-                      </Button>
-                    )}
-                    <Button  variant="outlined" color="secondary" onClick={() => handleDelete(user.id)}>
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
         </Table>
       </TableContainer>
     </div>

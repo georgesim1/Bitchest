@@ -23,7 +23,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
-            'portfolio' => $this->randomFloat(5, 15)  // Generating a random float for portfolio between 5 and 15. If you want to add other numbers change 5 and 15
+            // 'balance' => $this->randomFloat(5, 15) 
         ];
         
     }
@@ -55,4 +55,6 @@ class UserFactory extends Factory
         $factor = pow(10, $precision);
         return mt_rand($min * $factor, $max * $factor) / $factor;
     }
+
+    
 }

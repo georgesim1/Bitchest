@@ -18,7 +18,7 @@ use App\Http\Controllers\CryptoController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/', [NFTController::class, 'index'])->middleware(['auth', 'admin'])->name('home'); ;
+// Route::get('/', [NFTController::class, 'index'])->middleware(['auth', 'admin'])->name('home'); ;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -45,8 +45,14 @@ Route::middleware(['auth:sanctum'])->get('/users/portfolio', [UserController::cl
 // Get all crypto currencies
 Route::get('/crypto', [CryptoController::class, 'getAllCryptos']);
 
+// Create a new user - this assumes you have a "store" method in your UserController
+Route::post('/users', [UserController::class, 'store']);
+
 // Update a user - this assumes you have a "update" method in your UserController
 Route::put('/users/{id}', [UserController::class, 'update']);
 
 // Delete a user - this assumes you have a "destroy" method in your UserController
 Route::middleware(['auth:sanctum'])->delete('/users/{id}', [UserController::class, 'destroy']);
+
+// Get user's wallet data
+Route::middleware(['auth:sanctum'])->get('/user-wallet', [CryptoController::class, 'getUserWallet']);

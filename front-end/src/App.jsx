@@ -4,6 +4,7 @@ import Home from './components/Home';
 import Profile from './components/Profile.jsx';
 import CryptoList from './components/CryptoList';
 import Navbar from './components/Navbar.jsx';
+import UserWallet from './components/UserWallet';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import { Box } from '@mui/material';
@@ -24,7 +25,7 @@ function App() {
                     <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/crypto-list" element={
-                          <PrivateRoute>
+                          <PrivateRoute > 
                           <CryptoList />
                       </PrivateRoute>
                     } />
@@ -34,7 +35,7 @@ function App() {
                       </PrivateRoute>
                     } />
                     <Route path="/" element={
-                <PrivateRoute>
+                <PrivateRoute adminRoute  alternative={<UserWallet />}>
                     <Home />
                 </PrivateRoute>
             } />
