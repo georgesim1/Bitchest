@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CryptoController;
-
+use App\Http\Controllers\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +57,10 @@ Route::middleware(['auth:sanctum'])->delete('/users/{id}', [UserController::clas
 Route::middleware(['auth:sanctum'])->get('/user-wallet', [CryptoController::class, 'getUserWallet']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('transactions', [TransactionController::class, 'getUserTransactions']);
+    Route::get('transactions', [TransactionController::class]);
 });
+
+Route::post('/transaction/buy', [TransactionController::class, 'buy']);
+Route::post('/transaction/sell', [TransactionController::class, 'sell']);
+
 

@@ -8,9 +8,17 @@ function TransactionHistory() {
         async function fetchTransactions() {
             try {
                 const response = await axios.get('http://localhost:8000/api/transactions');
-                setTransactions(response.data);
+                
+                // Check if response.data is an array
+                if (Array.isArray(response.data)) {
+                    setTransactions(response.data);
+                } else {
+                    console.error("Unexpected data format from API:", response.data);
+                    setTransactions([]); // Ensure transactions is always an array
+                }
             } catch (error) {
                 console.error("Error fetching transactions:", error);
+                setTransactions([]); // Ensure transactions is always an array
             }
         }
 

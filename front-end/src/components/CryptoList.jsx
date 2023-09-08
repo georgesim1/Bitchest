@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
-import { Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, Button } from '@mui/material';
+import { Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, Button, Snackbar } from '@mui/material';
 import { Box } from '@mui/system';
 import ReactApexChart from 'react-apexcharts';
 
@@ -61,7 +61,7 @@ function ApexChart({ crypto, handleClose }) {
     };
 
     return (
-        <Dialog open={true} onClose={handleClose}>
+        <Dialog open={true} onClose={handleClose} sx={{ '.MuiDialog-paper': { width: '150vw' } }}>
             <DialogTitle>{crypto.name} Analysis</DialogTitle>
             <div id="chart">
                 <ReactApexChart options={options} series={options.series} type="area" height={350} />
@@ -74,6 +74,8 @@ function CryptoList() {
     const [cryptos, setCryptos] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCrypto, setSelectedCrypto] = useState(null);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
     useEffect(() => {
         const fetchCryptos = async () => {
@@ -91,6 +93,43 @@ function CryptoList() {
     const handleClose = () => {
         setOpenDialog(false);
         setSelectedCrypto(null);
+    };
+
+    const handleBuy = async (crypto) => {
+        try {
+            const response = await axios.post('http://localhost:8000/api/transaction/buy', { cryptoId: crypto.id });
+            setSnackbarMessage(response.data.message);
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error buying crypto:', error);
+    
+            // Additional logging to help diagnose the issue
+            if (error.response) {
+                console.error('Error Response Data:', error.response.data);
+                console.error('Error Response Status:', error.response.status);
+                console.error('Error Response Headers:', error.response.headers);
+            } else if (error.request) {
+                console.error('Error Request:', error.request);
+            } else {
+                console.error('Error Message:', error.message);
+            }
+    
+            setSnackbarMessage('Error buying crypto.');
+            setSnackbarOpen(true);
+        }
+    };
+    
+
+    const handleSell = async (crypto) => {
+        try {
+            const response = await axios.post('http://localhost:8000/api/transaction/sell', { cryptoId: crypto.id });
+            setSnackbarMessage(response.data.message);
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error selling crypto:', error);
+            setSnackbarMessage('Error selling crypto.');
+            setSnackbarOpen(true);
+        }
     };
 
     return (
@@ -120,14 +159,20 @@ function CryptoList() {
                                 <Typography variant="body2" color="textSecondary">
                                     ${crypto.price}
                                 </Typography>
-                                <Button color="primary" onClick={() => {/* Add your buy logic here */}}>Buy</Button>
-                                <Button color="secondary" onClick={() => {/* Add your sell logic here */}}>Sell</Button>
+                                <Button color="primary" onClick={() => handleBuy(crypto)}>Buy</Button>
+                                <Button color="secondary" onClick={() => handleSell(crypto)}>Sell</Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
             {openDialog && selectedCrypto && <ApexChart crypto={selectedCrypto} handleClose={handleClose} />}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+                message={snackbarMessage}
+            />
         </Box>
     );
 }
