@@ -1,10 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
-import { Grid, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, Button } from '@mui/material';
 import { Box } from '@mui/system';
+import ReactApexChart from 'react-apexcharts';
+
+function ApexChart({ crypto, handleClose }) {
+    const [chartData, setChartData] = useState(null);
+
+    useEffect(() => {
+        const fetchPriceHistory = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/crypto-price-history/${crypto.name}`);
+                setChartData(response.data);
+            } catch (error) {
+                console.error(`Error fetching price history for ${crypto.name}:`, error);
+            }
+        };
+
+        fetchPriceHistory();
+    }, [crypto.name]);
+
+    if (!chartData) return null;
+
+    const options = {
+        series: [{
+            name: crypto.name,
+            data: chartData.prices
+        }],
+        chart: {
+            type: 'area',
+            height: 350,
+            zoom: {
+                enabled: false
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'straight'
+        },
+        title: {
+            text: `Fundamental Analysis of ${crypto.name}`,
+            align: 'left'
+        },
+        subtitle: {
+            text: 'Price Movements',
+            align: 'left'
+        },
+        labels: chartData.dates,
+        xaxis: {
+            type: 'datetime',
+        },
+        yaxis: {
+            opposite: true
+        },
+        legend: {
+            horizontalAlign: 'left'
+        }
+    };
+
+    return (
+        <Dialog open={true} onClose={handleClose}>
+            <DialogTitle>{crypto.name} Analysis</DialogTitle>
+            <div id="chart">
+                <ReactApexChart options={options} series={options.series} type="area" height={350} />
+            </div>
+        </Dialog>
+    );
+}
 
 function CryptoList() {
     const [cryptos, setCryptos] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedCrypto, setSelectedCrypto] = useState(null);
 
     useEffect(() => {
         const fetchCryptos = async () => {
@@ -18,6 +87,11 @@ function CryptoList() {
 
         fetchCryptos();
     }, []);
+
+    const handleClose = () => {
+        setOpenDialog(false);
+        setSelectedCrypto(null);
+    };
 
     return (
         <Box p={3}>
@@ -34,6 +108,10 @@ function CryptoList() {
                                 style={{ maxWidth: '20%', margin: '10px auto 0 auto' }}
                                 image={crypto.image}
                                 alt={crypto.name}
+                                onClick={() => {
+                                    setSelectedCrypto(crypto);
+                                    setOpenDialog(true);
+                                }}
                             />
                             <CardContent>
                                 <Typography variant="h5" component="div">
@@ -42,11 +120,14 @@ function CryptoList() {
                                 <Typography variant="body2" color="textSecondary">
                                     ${crypto.price}
                                 </Typography>
+                                <Button color="primary" onClick={() => {/* Add your buy logic here */}}>Buy</Button>
+                                <Button color="secondary" onClick={() => {/* Add your sell logic here */}}>Sell</Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
+            {openDialog && selectedCrypto && <ApexChart crypto={selectedCrypto} handleClose={handleClose} />}
         </Box>
     );
 }

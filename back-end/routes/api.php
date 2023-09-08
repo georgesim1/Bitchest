@@ -18,8 +18,6 @@ use App\Http\Controllers\CryptoController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-// Route::get('/', [NFTController::class, 'index'])->middleware(['auth', 'admin'])->name('home'); ;
-
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -38,7 +36,8 @@ Route::get('user', function () {
 
     return response()->json(['message' => 'Not logged in'], 401);
 })->name('api.user');
-
+// Get crypto 30 days price
+Route::get('crypto-price-history/{cryptoname}', [CryptoController::class, 'getPriceHistory']);
 // Get user balance
 Route::middleware(['auth:sanctum'])->get('/users/portfolio', [UserController::class, 'getPortfolio']);
 

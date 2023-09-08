@@ -14,14 +14,14 @@ class TransactionSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::first(); // Or however you'd like to fetch the user
+        $user = User::first();
     
         Transaction::create([
             'user_id' => $user->id,
-            'cryptocurrency_id' => 1, // ID for the cryptocurrency of your choice
-            'amount' => 100, // Default amount
-            'price_at_transaction' => 50, // Default price
-            'transaction_type' => 'buy', // Default type
+            'cryptocurrency_id' => 1, 
+            'amount' => 100, 
+            'price_at_transaction' => 50, 
+            'transaction_type' => 'buy', 
         ]);
     }
     

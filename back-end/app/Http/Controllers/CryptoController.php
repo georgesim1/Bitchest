@@ -62,4 +62,37 @@ class CryptoController extends Controller
             'cryptos' => $cryptos
         ]);
     }
+    public function getPriceHistory($cryptoname)
+    {
+        $firstCotation = $this->getFirstCotation($cryptoname);
+        $priceData = [];
+        $dates = [];
+
+        // Generate data for the last 30 days
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->toDateString();
+            $dates[] = $date;
+
+            if ($i == 29) {
+                $priceData[] = $firstCotation;
+            } else {
+                $priceData[] = $priceData[count($priceData) - 1] + $this->getCotationFor($cryptoname);
+            }
+        }
+
+        return response()->json([
+            'dates' => $dates,
+            'prices' => $priceData,
+        ]);
+    }
+
+    private function getFirstCotation($cryptoname)
+    {
+        return ord(substr($cryptoname, 0, 1)) + rand(0, 10);
+    }
+
+    private function getCotationFor($cryptoname)
+    {
+        return ((rand(0, 99) > 40) ? 1 : -1) * ((rand(0, 99) > 49) ? ord(substr($cryptoname, 0, 1)) : ord(substr($cryptoname, -1))) * (rand(1, 10) * .01);
+    }
 }
