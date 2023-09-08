@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('wallet_id'); // Foreign key referencing wallets table
             $table->unsignedBigInteger('crypto_id'); // Foreign key referencing cryptos table
             $table->decimal('amount', 18, 8)->default(0); // Amount of crypto
+            $table->decimal('global_value', 8, 2)->default(0); // Or whatever default you'd like
             $table->timestamps();
     
             // Set foreign key constraints

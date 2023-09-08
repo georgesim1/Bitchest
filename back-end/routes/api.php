@@ -56,3 +56,8 @@ Route::middleware(['auth:sanctum'])->delete('/users/{id}', [UserController::clas
 
 // Get user's wallet data
 Route::middleware(['auth:sanctum'])->get('/user-wallet', [CryptoController::class, 'getUserWallet']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('transactions', [TransactionController::class, 'getUserTransactions']);
+});
+

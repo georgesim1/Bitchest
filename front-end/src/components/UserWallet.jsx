@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import axios from '../api/axios'; // Assuming you're using axios to make API calls
+import axios from '../api/axios';
+import TransactionHistory from './TransactionHistory'; // Make sure the path is correct
 
 function UserWallet() {
     const [balanceInEuros, setBalanceInEuros] = useState(0);
@@ -29,7 +30,7 @@ function UserWallet() {
                 const response = await axios.get('http://localhost:8000/api/user-wallet');
 
                 setBalanceInEuros(response.data.totalInEuros);
-                setCryptos(response.data.cryptos.map(crypto => crypto.amount)); // Extract just the amounts for the chart series
+                setCryptos(response.data.cryptos.map(crypto => crypto.amount));
             } catch (error) {
                 console.error("Error fetching user's wallet:", error);
             }
@@ -46,6 +47,9 @@ function UserWallet() {
             <div id="chart">
                 <ReactApexChart options={options} series={cryptos} type="donut" height={300} />
             </div>
+            
+            {/* Render TransactionHistory below the chart */}
+            <TransactionHistory />
         </div>
     );
 }
