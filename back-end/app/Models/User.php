@@ -53,4 +53,9 @@ public function transactions() {
     return $this->hasMany(Transaction::class);
 }
 
+public function cryptos()
+{
+    return $this->hasMany(Cryptocurrency::class);  // or belongsToMany, or another appropriate relation
+}
+
 }

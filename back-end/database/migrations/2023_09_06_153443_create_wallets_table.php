@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id(); // Wallet ID
             $table->unsignedBigInteger('user_id');
-            $table->decimal('balance', 18, 8)->default(0);
+            $table->decimal('balance', 18, 8)->default(1000);
             $table->timestamps();
     
             // Set foreign key constraints

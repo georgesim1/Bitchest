@@ -11,11 +11,14 @@ class TransactionController extends Controller
 {
     public function buy(Request $request)
     {
-        $userId = $request->input('user_id');
+        $userId = $request->input('userId');
         $cryptoId = $request->input('cryptoId');
         $quantity = $request->input('quantity');
 
         $user = User::find($userId);
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
         $crypto = Cryptocurrency::where('id',$cryptoId )->first();
 
         // Check if crypto exists

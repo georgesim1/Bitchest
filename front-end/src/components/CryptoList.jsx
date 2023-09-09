@@ -4,6 +4,7 @@ import { Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, Bu
 import { Box } from '@mui/system';
 import ReactApexChart from 'react-apexcharts';
 
+
 function ApexChart({ crypto, handleClose }) {
     const [chartData, setChartData] = useState(null);
 
@@ -76,17 +77,27 @@ function CryptoList() {
     const [selectedCrypto, setSelectedCrypto] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
         const fetchCryptos = async () => {
+            // Fetching cryptos
             try {
                 const response = await axios.get('http://localhost:8000/api/crypto');
                 setCryptos(response.data);
             } catch (error) {
                 console.error('Error fetching cryptos:', error);
             }
+            
+            // Fetching user's ID
+            try {
+                const userResponse = await axios.get('http://localhost:8000/api/user');
+                setUserId(userResponse.data.user.id);  // setting the user's ID here
+            } catch (userError) {
+                console.error('Error fetching user ID:', userError);
+            }
         };
-
+    
         fetchCryptos();
     }, []);
 
@@ -97,7 +108,10 @@ function CryptoList() {
 
     const handleBuy = async (crypto) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/transaction/buy', { cryptoId: crypto.id });
+            const response = await axios.post('http://localhost:8000/api/transaction/buy', {
+                userId: userId,
+                cryptoId: crypto.id
+             });
             setSnackbarMessage(response.data.message);
             setSnackbarOpen(true);
         } catch (error) {
