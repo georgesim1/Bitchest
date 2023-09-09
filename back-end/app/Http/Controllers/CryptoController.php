@@ -62,6 +62,7 @@ class CryptoController extends Controller
             'cryptos' => $cryptos
         ]);
     }
+
     public function getPriceHistory($cryptoname)
     {
         $firstCotation = $this->getFirstCotation($cryptoname);
@@ -94,5 +95,77 @@ class CryptoController extends Controller
     private function getCotationFor($cryptoname)
     {
         return ((rand(0, 99) > 40) ? 1 : -1) * ((rand(0, 99) > 49) ? ord(substr($cryptoname, 0, 1)) : ord(substr($cryptoname, -1))) * (rand(1, 10) * .01);
+    }
+
+    /**
+     * Process a cryptocurrency transaction.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function processTransaction(Request $request) {
+        $user = $request->user();
+        
+        // Ensure user is authenticated
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $action = $request->input('action'); // 'buy' or 'sell'
+        $cryptoName = $request->input('cryptoName'); // Name of the cryptocurrency
+        $amount = $request->input('amount'); // Amount of cryptocurrency to buy/sell
+
+        $wallet = $user->wallet;
+        if (!$wallet) {
+            return response()->json(['message' => 'User does not have a wallet'], 404);
+        }
+
+        // Fetch crypto
+        $crypto = Cryptocurrency::where('name', $cryptoName)->first();
+        if (!$crypto) {
+            return response()->json(['message' => 'Cryptocurrency not found'], 404);
+        }
+
+        $cryptoHolding = $wallet->cryptoHoldings->where('crypto_id', $crypto->id)->first();
+
+        if ($action === 'buy') {
+            $totalCost = $crypto->price * $amount;
+            if ($wallet->balance < $totalCost) {
+                return response()->json(['message' => 'Insufficient funds'], 400);
+            }
+
+            // Deduct the cost from user's wallet and add crypto
+            $wallet->balance -= $totalCost;
+            $wallet->save();
+
+            if ($cryptoHolding) {
+                $cryptoHolding->amount += $amount;
+            } else {
+                $wallet->cryptoHoldings()->create([
+                    'crypto_id' => $crypto->id,
+                    'amount' => $amount
+                ]);
+            }
+
+        } elseif ($action === 'sell') {
+            if (!$cryptoHolding || $cryptoHolding->amount < $amount) {
+                return response()->json(['message' => 'Not enough cryptocurrency in wallet'], 400);
+            }
+
+            // Add the euros to user's wallet and deduct the crypto
+            $wallet->balance += $crypto->price * $amount;
+            $wallet->save();
+
+            $cryptoHolding->amount -= $amount;
+            if ($cryptoHolding->amount == 0) {
+                $cryptoHolding->delete();
+            } else {
+                $cryptoHolding->save();
+            }
+        } else {
+            return response()->json(['message' => 'Invalid action'], 400);
+        }
+
+        return response()->json(['message' => ucfirst($action) . ' successful']);
     }
 }

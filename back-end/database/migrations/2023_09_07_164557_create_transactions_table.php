@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('cryptocurrency_id');
             $table->decimal('amount', 16, 8);
-            $table->decimal('price_at_transaction', 16, 8);
+            $table->decimal('price_at_transaction');
             $table->enum('transaction_type', ['buy', 'sell']);
             $table->timestamps();
     

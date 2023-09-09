@@ -41,5 +41,9 @@ class Cryptocurrency extends Model
     
     // Define any relationships, getters, setters, or additional methods below...
 
+    public function user()
+{
+    return $this->belongsToMany(User::class);
+}
     
 }

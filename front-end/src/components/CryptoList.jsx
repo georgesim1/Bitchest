@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
-import { Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, Button, Snackbar } from '@mui/material';
+import { 
+    Grid, Card, CardContent, CardMedia, Typography, Dialog, DialogTitle, 
+    DialogContent, DialogContentText, DialogActions, Button, Snackbar, TextField 
+} from '@mui/material';
 import { Box } from '@mui/system';
 import ReactApexChart from 'react-apexcharts';
 
@@ -74,6 +77,8 @@ function ApexChart({ crypto, handleClose }) {
 function CryptoList() {
     const [cryptos, setCryptos] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const [buyDialogOpen, setBuyDialogOpen] = useState(false);
+    const [buyQuantity, setBuyQuantity] = useState(1);
     const [selectedCrypto, setSelectedCrypto] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -106,18 +111,32 @@ function CryptoList() {
         setSelectedCrypto(null);
     };
 
-    const handleBuy = async (crypto) => {
+    const handleOpenBuyDialog = (crypto) => {
+        setSelectedCrypto(crypto);
+        setBuyDialogOpen(true);
+    };
+
+    const handleBuy = async (crypto, quantity) => {
         try {
             const response = await axios.post('http://localhost:8000/api/transaction/buy', {
                 userId: userId,
-                cryptoId: crypto.id
-             });
+                cryptoId: crypto.id,
+                quantity: quantity  // Pass the quantity to backend
+            });
             setSnackbarMessage(response.data.message);
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error buying crypto:', error);
     
-            // Additional logging to help diagnose the issue
+            // Check for "Insufficient balance" error message and handle it
+            if (error.response && error.response.data.message === "Insufficient balance") {
+                setSnackbarMessage('You do not have enough balance to make this purchase.');
+            } else {
+                setSnackbarMessage('Error buying crypto.');
+            }
+            setSnackbarOpen(true);
+    
+            // Additional logging to help diagnose other issues
             if (error.response) {
                 console.error('Error Response Data:', error.response.data);
                 console.error('Error Response Status:', error.response.status);
@@ -127,11 +146,9 @@ function CryptoList() {
             } else {
                 console.error('Error Message:', error.message);
             }
-    
-            setSnackbarMessage('Error buying crypto.');
-            setSnackbarOpen(true);
         }
     };
+    
     
 
     const handleSell = async (crypto) => {
@@ -173,14 +190,45 @@ function CryptoList() {
                                 <Typography variant="body2" color="textSecondary">
                                     ${crypto.price}
                                 </Typography>
-                                <Button color="primary" onClick={() => handleBuy(crypto)}>Buy</Button>
+                                <Button color="primary" onClick={() => handleOpenBuyDialog(crypto)}>Buy</Button>
                                 <Button color="secondary" onClick={() => handleSell(crypto)}>Sell</Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
+            
             {openDialog && selectedCrypto && <ApexChart crypto={selectedCrypto} handleClose={handleClose} />}
+
+            <Dialog open={buyDialogOpen} onClose={() => setBuyDialogOpen(false)}>
+                <DialogTitle>Buy {selectedCrypto?.name}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Enter the amount of {selectedCrypto?.name} you like to purchase
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Quantity"
+                        type="number"
+                        value={buyQuantity}
+                        onChange={(e) => setBuyQuantity(e.target.value)}
+                        fullWidth
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setBuyDialogOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => {
+                        handleBuy(selectedCrypto, buyQuantity);
+                        setBuyDialogOpen(false);
+                    }} color="primary">
+                        Buy
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}

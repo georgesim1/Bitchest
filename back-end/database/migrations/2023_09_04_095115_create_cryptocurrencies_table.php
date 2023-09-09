@@ -14,6 +14,8 @@ class CreateCryptocurrenciesTable extends Migration
     public function up()
     {
         Schema::create('cryptocurrencies', function (Blueprint $table) {
+            // $table->unsignedBigInteger('user_id')->nullable();
+            
             $table->id(); // Primary key
             $table->string('name'); // Name of the cryptocurrency
             $table->string('symbol')->unique(); // Ticker symbol, like BTC for Bitcoin

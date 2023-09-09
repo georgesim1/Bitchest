@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class wallet extends Model
+class Wallet extends Model
 {
     protected $fillable = ['user_id']; // Add other fields as necessary
 
@@ -17,7 +17,7 @@ class wallet extends Model
     // Define the relationship to cryptocurrencies
     public function cryptoHoldings()
     {
-        return $this->hasMany(crypto_wallet::class);
+        return $this->hasMany(CryptoWallet::class);
             
     }
 }

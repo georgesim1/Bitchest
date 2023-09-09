@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Cryptocurrency;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -14,6 +15,7 @@ class TransactionController extends Controller
         $userId = $request->input('userId');
         $cryptoId = $request->input('cryptoId');
         $quantity = $request->input('quantity');
+        Log::info('Quantity: ' . $quantity);
 
         $user = User::find($userId);
             if (!$user) {
@@ -29,22 +31,24 @@ class TransactionController extends Controller
 
         // Check if the user can afford the purchase
         $totalPrice = $crypto->price * $quantity;
-        if($user->balance < $totalPrice) {
+        if($user->wallet->balance < $totalPrice) {
             return response()->json(['message' => 'Insufficient balance'], 400);
         }
 
         // Deduct from user's balance and save the crypto purchase
-        $user->balance -= $totalPrice;
-        $user->cryptos()->attach($cryptoId, ['quantity' => $quantity]);
-        $user->save();
+        $wallet = $user->wallet;
+        $wallet->balance -= $totalPrice;
+        $wallet->save();
+        // $user->cryptos()->attach($cryptoId, ['quantity' => $quantity]);
 
         // Log the transaction
         Transaction::create([
             'user_id' => $userId,
-            'crypto_id' => $cryptoId,
-            'quantity' => $quantity,
-            'type' => 'buy'
-        ]);
+            'cryptocurrency_id' => $cryptoId,
+            'amount' => $quantity,  // This is the quantity of the cryptocurrency
+            'price_at_transaction' => $crypto->price,  // Price of the cryptocurrency at the time of transaction
+            'transaction_type' => 'buy'  // Or 'sell' based on the method
+        ]);        
 
         return response()->json(['message' => 'Successfully bought']);
     }
@@ -83,7 +87,7 @@ class TransactionController extends Controller
         // Log the transaction
         Transaction::create([
             'user_id' => $userId,
-            'crypto_id' => $cryptoId,
+            'cryptocurrency_id' => $cryptoId,
             'quantity' => $quantity,
             'type' => 'sell'
         ]);
