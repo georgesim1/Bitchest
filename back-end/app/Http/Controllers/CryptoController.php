@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cryptocurrency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CryptoController extends Controller
 {
@@ -26,42 +27,43 @@ class CryptoController extends Controller
      */
     public function getUserWallet(Request $request) {
         $user = $request->user();
-        
-
+    
         // Ensure user is authenticated
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
-
-        // Fetch the user's wallet and its associated cryptocurrencies.
+    
+        // Fetch the user's wallet
         $wallet = $user->wallet;
-        
+    
         // Ensure the user has a wallet
         if (!$wallet) {
             return response()->json(['message' => 'User does not have a wallet'], 404);
         }
-
-        // Fetch crypto holdings from the wallet
-        $cryptoHoldings = $wallet->cryptoHoldings; // Assuming a relation 'cryptoHoldings' exists on the Wallet model
-       
+    
+        $cryptoHoldings = $user->cryptos; 
+    
         $totalInEuros = 0; 
         $cryptos = [];
-
-        foreach ($cryptoHoldings as $holding) {
+    
+        foreach ($cryptoHoldings as $crypto) {
             $cryptos[] = [
-                'name' => $holding->crypto->name, // Assuming a 'crypto' relation on crypto_wallet model
-                'amount' => $holding->amount
+                'name' => $crypto->name,
+                'amount' => $crypto->pivot->quantity
             ];
-
+    
             // Calculate total in euros based on the current price of the crypto.
-            $totalInEuros += $holding->crypto->price * $holding->amount;
+            $totalInEuros += $crypto->price * $crypto->pivot->quantity;
         }
-
+    
         return response()->json([
             'totalInEuros' => $totalInEuros,
-            'cryptos' => $cryptos
+            'cryptos' => $cryptos,
+            'wallet' => $wallet
         ]);
     }
+    
+    
 
     public function getPriceHistory($cryptoname)
     {
@@ -105,67 +107,79 @@ class CryptoController extends Controller
      */
     public function processTransaction(Request $request) {
         $user = $request->user();
-        
+    
         // Ensure user is authenticated
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
-
+    
         $action = $request->input('action'); // 'buy' or 'sell'
         $cryptoName = $request->input('cryptoName'); // Name of the cryptocurrency
         $amount = $request->input('amount'); // Amount of cryptocurrency to buy/sell
-
+    
         $wallet = $user->wallet;
         if (!$wallet) {
             return response()->json(['message' => 'User does not have a wallet'], 404);
         }
-
+    
         // Fetch crypto
         $crypto = Cryptocurrency::where('name', $cryptoName)->first();
         if (!$crypto) {
             return response()->json(['message' => 'Cryptocurrency not found'], 404);
         }
-
-        $cryptoHolding = $wallet->cryptoHoldings->where('crypto_id', $crypto->id)->first();
-
+    
+        $cryptoHolding = DB::table('crypto_wallets')
+            ->where('wallet_id', $wallet->id)
+            ->where('crypto_id', $crypto->id)
+            ->first();
+    
         if ($action === 'buy') {
             $totalCost = $crypto->price * $amount;
             if ($wallet->balance < $totalCost) {
                 return response()->json(['message' => 'Insufficient funds'], 400);
             }
-
+    
             // Deduct the cost from user's wallet and add crypto
             $wallet->balance -= $totalCost;
             $wallet->save();
-
+    
             if ($cryptoHolding) {
-                $cryptoHolding->amount += $amount;
+                DB::table('crypto_wallets')
+                    ->where('id', $cryptoHolding->id)
+                    ->increment('amount', $amount);
             } else {
-                $wallet->cryptoHoldings()->create([
+                DB::table('crypto_wallets')->insert([
+                    'wallet_id' => $wallet->id,
                     'crypto_id' => $crypto->id,
-                    'amount' => $amount
+                    'amount' => $amount,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
-
+    
         } elseif ($action === 'sell') {
             if (!$cryptoHolding || $cryptoHolding->amount < $amount) {
                 return response()->json(['message' => 'Not enough cryptocurrency in wallet'], 400);
             }
-
+    
             // Add the euros to user's wallet and deduct the crypto
             $wallet->balance += $crypto->price * $amount;
             $wallet->save();
-
-            $cryptoHolding->amount -= $amount;
-            if ($cryptoHolding->amount == 0) {
-                $cryptoHolding->delete();
+    
+            $newAmount = $cryptoHolding->amount - $amount;
+            if ($newAmount == 0) {
+                DB::table('crypto_wallets')->where('id', $cryptoHolding->id)->delete();
             } else {
-                $cryptoHolding->save();
+                DB::table('crypto_wallets')
+                    ->where('id', $cryptoHolding->id)
+                    ->update(['amount' => $newAmount]);
             }
+    
         } else {
             return response()->json(['message' => 'Invalid action'], 400);
         }
-
+    
         return response()->json(['message' => ucfirst($action) . ' successful']);
     }
+    
 }

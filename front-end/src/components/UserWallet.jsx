@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import EuroIcon from '@mui/icons-material/Euro';
 import axios from '../api/axios';
-import TransactionHistory from './TransactionHistory'; // Make sure the path is correct
+import TransactionHistory from './TransactionHistory';
 
 function UserWallet() {
     const [balanceInEuros, setBalanceInEuros] = useState(0);
@@ -9,13 +10,15 @@ function UserWallet() {
 
     const options = {
         chart: {
-            type: 'donut',
+            width: 400,
+            type: 'pie',
         },
+        labels: cryptos.map(crypto => crypto.name),
         responsive: [{
             breakpoint: 480,
             options: {
                 chart: {
-                    width: 300
+                    width: 200
                 },
                 legend: {
                     position: 'bottom'
@@ -28,9 +31,15 @@ function UserWallet() {
         async function fetchUserWallet() {
             try {
                 const response = await axios.get('http://localhost:8000/api/user-wallet');
-
                 setBalanceInEuros(response.data.totalInEuros);
-                setCryptos(response.data.cryptos.map(crypto => crypto.amount));
+
+                // Set cryptocurrencies data and convert amount to float
+                if (response.data.cryptos && Array.isArray(response.data.cryptos)) {
+                    setCryptos(response.data.cryptos.map(crypto => ({
+                        ...crypto,
+                        amount: parseFloat(crypto.amount)
+                    })));
+                }
             } catch (error) {
                 console.error("Error fetching user's wallet:", error);
             }
@@ -39,17 +48,33 @@ function UserWallet() {
         fetchUserWallet();
     }, []);
 
+    console.log("Labels:", cryptos.map(crypto => crypto.name));
+    console.log("Series:", cryptos.map(crypto => crypto.amount));
+
     return (
         <div>
-            <h2>User Wallet</h2>
-            <p>Total Balance in Euros: {balanceInEuros}</p>
 
-            <div id="chart">
-                <ReactApexChart options={options} series={cryptos} type="donut" height={300} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                {/* Only render chart if cryptos data is available */}
+                {cryptos.length > 0 && (
+                    <div id="chart" style={{ flex: 1, paddingRight: '20px' }}>
+                        <ReactApexChart 
+                            options={options} 
+                            series={cryptos.map(crypto => crypto.amount)} 
+                            type="pie" 
+                            width="100%" 
+                        />
+                        <h1> Total Balance <EuroIcon /> {balanceInEuros}</h1>
+                    </div>
+                    
+                )}
+                
+                {/* Render TransactionHistory */}
+                <div style={{ flex: 1.5 }}>
+                    <TransactionHistory />
+                </div>
             </div>
-            
-            {/* Render TransactionHistory below the chart */}
-            <TransactionHistory />
         </div>
     );
 }

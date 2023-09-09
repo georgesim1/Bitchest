@@ -10,45 +10,64 @@ use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+    
+        if (!$user) {
+            return response()->json(['message' => 'Authentication required'], 401);
+        }
+    
+        $transactions = Transaction::where('user_id', $user->id)->with('cryptocurrency')->get();
+    
+        return response()->json($transactions);
+    }
+
     public function buy(Request $request)
     {
         $userId = $request->input('userId');
         $cryptoId = $request->input('cryptoId');
         $quantity = $request->input('quantity');
+
         Log::info('Quantity: ' . $quantity);
 
         $user = User::find($userId);
-            if (!$user) {
-                return response()->json(['message' => 'User not found'], 404);
-            }
-        $crypto = Cryptocurrency::where('id',$cryptoId )->first();
-
-        // Check if crypto exists
-        if ($crypto === null) {
-            return response()->json(['message' => 'Cryptocurrency not found'], 404);
-            
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
         }
 
-        // Check if the user can afford the purchase
+        $crypto = Cryptocurrency::where('id', $cryptoId)->first();
+
+        if ($crypto === null) {
+            return response()->json(['message' => 'Cryptocurrency not found'], 404);
+        }
+
         $totalPrice = $crypto->price * $quantity;
         if($user->wallet->balance < $totalPrice) {
             return response()->json(['message' => 'Insufficient balance'], 400);
         }
 
-        // Deduct from user's balance and save the crypto purchase
         $wallet = $user->wallet;
         $wallet->balance -= $totalPrice;
         $wallet->save();
-        // $user->cryptos()->attach($cryptoId, ['quantity' => $quantity]);
 
-        // Log the transaction
+        // Check if the user already has an entry for this cryptocurrency
+        $ownedCrypto = $user->cryptos()->where('cryptocurrency_id', $cryptoId)->first();
+
+        if($ownedCrypto) {
+            $ownedCrypto->pivot->quantity += $quantity;
+            $ownedCrypto->pivot->save();
+        } else {
+            $user->cryptos()->attach($cryptoId, ['quantity' => $quantity]);
+        }
+
         Transaction::create([
             'user_id' => $userId,
             'cryptocurrency_id' => $cryptoId,
-            'amount' => $quantity,  // This is the quantity of the cryptocurrency
-            'price_at_transaction' => $crypto->price,  // Price of the cryptocurrency at the time of transaction
-            'transaction_type' => 'buy'  // Or 'sell' based on the method
-        ]);        
+            'amount' => $quantity,
+            'price_at_transaction' => $crypto->price,
+            'transaction_type' => 'buy'
+        ]);
 
         return response()->json(['message' => 'Successfully bought']);
     }
@@ -62,34 +81,33 @@ class TransactionController extends Controller
         $user = User::find($userId);
         $crypto = Cryptocurrency::find($cryptoId);
 
-        // Check if crypto exists
         if ($crypto === null) {
             return response()->json(['message' => 'Cryptocurrency not found'], 404);
         }
 
-        // Check if the user has enough of the crypto to sell
-        $ownedCrypto = $user->cryptos()->where('crypto_id', $cryptoId)->first();
+        $ownedCrypto = $user->cryptos()->where('cryptocurrency_id', $cryptoId)->first();
+
         if(!$ownedCrypto || $ownedCrypto->pivot->quantity < $quantity) {
             return response()->json(['message' => 'Not enough crypto to sell'], 400);
         }
 
-        // Add to user's balance and deduct the crypto
         $totalAmount = $crypto->price * $quantity;
-        $user->balance += $totalAmount;
+        $user->wallet->balance += $totalAmount;
+        $user->wallet->save();
+
         $ownedCrypto->pivot->quantity -= $quantity;
         $ownedCrypto->pivot->save();
 
         if($ownedCrypto->pivot->quantity <= 0) {
             $user->cryptos()->detach($cryptoId);
         }
-        $user->save();
 
-        // Log the transaction
         Transaction::create([
             'user_id' => $userId,
             'cryptocurrency_id' => $cryptoId,
-            'quantity' => $quantity,
-            'type' => 'sell'
+            'amount' => $quantity,
+            'price_at_transaction' => $crypto->price,
+            'transaction_type' => 'sell'
         ]);
 
         return response()->json(['message' => 'Successfully sold']);

@@ -54,11 +54,11 @@ Route::put('/users/{id}', [UserController::class, 'update']);
 Route::middleware(['auth:sanctum'])->delete('/users/{id}', [UserController::class, 'destroy']);
 
 // Get user's wallet data
-Route::middleware(['auth:sanctum'])->get('/user-wallet', [CryptoController::class, 'getUserWallet']);
+Route::get('/user-wallet', [CryptoController::class, 'getUserWallet']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('transactions', [TransactionController::class]);
-});
+
+Route::get('/transactions', [TransactionController::class, 'index']);
+
 
 // Route::get('/transaction/buy', [TransactionController::class, 'buy']);
 Route::post('/transaction/buy', [TransactionController::class, 'buy']);
