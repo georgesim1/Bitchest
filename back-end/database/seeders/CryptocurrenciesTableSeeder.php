@@ -10,22 +10,18 @@ class CryptocurrenciesTableSeeder extends Seeder
 {
     public function run()
     {
-        // Optional: Clear the table
-        // If you want to clear existing data every time you seed, uncomment the line below
-        // DB::table('cryptocurrencies')->delete();
-
-
+      
         $cryptocurrencies = [
-            ['name' => 'Bitcoin', 'symbol' => 'BTC',  'price' => rand(30000, 60000)],
-            ['name' => 'Bitcoin-cash', 'symbol' => 'BCH',  'price' => rand(1000, 3000)],
-            ['name' => 'Cardano', 'symbol' => 'ADA', 'price' => rand(1, 3)],
+            ['name' => 'Bitcoin', 'symbol' => 'BTC',  'price' => rand(100, 300)],
+            ['name' => 'Bitcoin-cash', 'symbol' => 'BCH',  'price' => rand(100, 300)],
+            ['name' => 'Cardano', 'symbol' => 'ADA', 'price' => rand(100, 300)],
             ['name' => 'Dash', 'symbol' => 'DASH',  'price' => rand(100, 300)],
-            ['name' => 'Ethereum', 'symbol' => 'ETH',  'price' => rand(2000, 4000)],
-            ['name' => 'Iota', 'symbol' => 'IOTA',  'price' => rand(0.5, 1.5)],
-            ['name' => 'Litecoin', 'symbol' => 'LTC',  'price' => rand(100, 200)],
-            ['name' => 'Nem', 'symbol' => 'XEM', 'price' => rand(0.2, 0.8)],
-            ['name' => 'Ripple', 'symbol' => 'XRP',  'price' => rand(0.5, 1)],
-            ['name' => 'Stellar', 'symbol' => 'XLM', 'price' => rand(0.2, 0.6)],
+            ['name' => 'Ethereum', 'symbol' => 'ETH',  'price' => rand(100, 300)],
+            ['name' => 'Iota', 'symbol' => 'IOTA',  'price' => rand(100, 300)],
+            ['name' => 'Litecoin', 'symbol' => 'LTC',  'price' => rand(100, 300)],
+            ['name' => 'Nem', 'symbol' => 'XEM', 'price' => rand(100, 300)],
+            ['name' => 'Ripple', 'symbol' => 'XRP',  'price' => rand(100, 300)],
+            ['name' => 'Stellar', 'symbol' => 'XLM', 'price' => rand(100, 300)],
         ];
 
         foreach ($cryptocurrencies as $crypto) {

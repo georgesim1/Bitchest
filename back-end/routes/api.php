@@ -59,8 +59,6 @@ Route::get('/user-wallet', [CryptoController::class, 'getUserWallet']);
 
 Route::get('/transactions', [TransactionController::class, 'index']);
 
-
-// Route::get('/transaction/buy', [TransactionController::class, 'buy']);
 Route::post('/transaction/buy', [TransactionController::class, 'buy']);
 Route::post('/transaction/sell', [TransactionController::class, 'sell']);
 

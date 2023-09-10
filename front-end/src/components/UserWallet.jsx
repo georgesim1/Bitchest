@@ -45,8 +45,6 @@ function UserWallet() {
             try {
                 const response = await axios.get('http://localhost:8000/api/user-wallet');
                 setBalanceInEuros(response.data.totalInEuros);
-
-                // Set cryptocurrencies data and convert amount to float
                 console.log(response.data);
                 if (response.data.wallet) setUserId(response.data.wallet.user_id)
                 if (response.data.cryptos && Array.isArray(response.data.cryptos)){
@@ -80,7 +78,6 @@ function UserWallet() {
                 return;
             }
     
-            // Get the full quantity of the crypto to sell
             const quantityToSell = cryptoToSell.amount;
     
             const response = await axios.post('http://localhost:8000/api/transaction/sell', {
@@ -110,7 +107,6 @@ function UserWallet() {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                {/* Only render chart if cryptos data is available */}
                 {cryptos.length > 0 && (
                     <div id="chart" style={{ flex: 1, paddingRight: '20px' }}>
                         <ReactApexChart 
@@ -122,8 +118,7 @@ function UserWallet() {
                     </div>
                 )}
                 
-                {/* Render TransactionHistory */}
-                <div style={{ flex: 1.5 }}>
+                <div style={{ flex: 1.5 }} className=''>
                     <TransactionHistory />
                     <Typography variant="h5"> Total Balance <EuroIcon /> {balanceInEuros}</Typography>
                     <Button variant="contained" color="primary" onClick={handleOpenSellModal}>Sell Cryptocurrency</Button>

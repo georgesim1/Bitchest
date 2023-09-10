@@ -9,7 +9,7 @@ class WalletsTableSeeder extends Seeder
 {
     public function run()
     {
-        $users = DB::table('users')->get(); // Get all users
+        $users = DB::table('users')->get();
 
         foreach ($users as $user) {
             DB::table('wallets')->insert([

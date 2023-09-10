@@ -7,6 +7,27 @@ import {
 import { Box } from '@mui/system';
 import ReactApexChart from 'react-apexcharts';
 
+const cardStyle = {
+    root: {
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+        borderRadius: '15px', 
+        transition: 'transform 0.3s ease-in-out',  
+        '&:hover': {
+            transform: 'scale(1.03)' 
+        }
+    },
+    media: {
+        maxWidth: '20%', 
+        margin: '10px auto 0 auto',
+        borderRadius: '50%'
+    },
+    content: {
+        padding: '15px'
+    },
+    buyButton: {
+        marginTop: '10px'
+    }
+};
 
 function ApexChart({ crypto, handleClose }) {
     const [chartData, setChartData] = useState(null);
@@ -65,7 +86,7 @@ function ApexChart({ crypto, handleClose }) {
     };
 
     return (
-        <Dialog open={true} onClose={handleClose} sx={{ '.MuiDialog-paper': { width: '150vw' } }}>
+        <Dialog open={true} onClose={handleClose} sx={{ '.MuiDialog-paper': { width: '180vw' } }}>
             <DialogTitle>{crypto.name} Analysis</DialogTitle>
             <div id="chart">
                 <ReactApexChart options={options} series={options.series} type="area" height={350} />
@@ -86,18 +107,16 @@ function CryptoList() {
 
     useEffect(() => {
         const fetchCryptos = async () => {
-            // Fetching cryptos
             try {
                 const response = await axios.get('http://localhost:8000/api/crypto');
                 setCryptos(response.data);
             } catch (error) {
                 console.error('Error fetching cryptos:', error);
             }
-            
-            // Fetching user's ID
+           
             try {
                 const userResponse = await axios.get('http://localhost:8000/api/user');
-                setUserId(userResponse.data.user.id);  // setting the user's ID here
+                setUserId(userResponse.data.user.id);  
             } catch (userError) {
                 console.error('Error fetching user ID:', userError);
             }
@@ -121,14 +140,14 @@ function CryptoList() {
             const response = await axios.post('http://localhost:8000/api/transaction/buy', {
                 userId: userId,
                 cryptoId: crypto.id,
-                quantity: quantity  // Pass the quantity to backend
+                quantity: quantity 
             });
             setSnackbarMessage(response.data.message);
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error buying crypto:', error);
     
-            // Check for "Insufficient balance" error message and handle it
+            
             if (error.response && error.response.data.message === "Insufficient balance") {
                 setSnackbarMessage('You do not have enough balance to make this purchase.');
             } else {
@@ -136,7 +155,6 @@ function CryptoList() {
             }
             setSnackbarOpen(true);
     
-            // Additional logging to help diagnose other issues
             if (error.response) {
                 console.error('Error Response Data:', error.response.data);
                 console.error('Error Response Status:', error.response.status);
@@ -157,11 +175,11 @@ function CryptoList() {
             <Grid container spacing={3}>
                 {cryptos.map(crypto => (
                     <Grid item xs={12} sm={6} md={4} lg={3} key={crypto.id}>
-                        <Card>
+                        <Card style={cardStyle.root}>
                             <CardMedia
                                 component="img"
-                                height="auto"
-                                style={{ maxWidth: '20%', margin: '10px auto 0 auto' }}
+                                height="100vw"
+                                style={cardStyle.media}
                                 image={crypto.image}
                                 alt={crypto.name}
                                 onClick={() => {
@@ -169,20 +187,27 @@ function CryptoList() {
                                     setOpenDialog(true);
                                 }}
                             />
-                            <CardContent>
+                            <CardContent style={cardStyle.content}>
                                 <Typography variant="h5" component="div">
                                     {crypto.name}
                                 </Typography>
                                 <Typography variant="h6" color="textSecondary">
                                     ${crypto.price}
                                 </Typography>
-                                <Button variant="contained" color="primary" onClick={() => handleOpenBuyDialog(crypto)}>Buy</Button>
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    style={cardStyle.buyButton} 
+                                    onClick={() => handleOpenBuyDialog(crypto)}
+                                >
+                                    Buy
+                                </Button>
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
-            
+
             {openDialog && selectedCrypto && <ApexChart crypto={selectedCrypto} handleClose={handleClose} />}
 
             <Dialog open={buyDialogOpen} onClose={() => setBuyDialogOpen(false)}>

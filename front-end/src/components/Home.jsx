@@ -14,8 +14,10 @@ import Alert from '@mui/material/Alert';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import GroupIcon from '@mui/icons-material/Group';
-import PortfolioIcon from '@mui/icons-material/AccountBalanceWallet';
 import ActionIcon from '@mui/icons-material/Build';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+
 
 export default function BasicTable() {
   const [users, setUsers] = useState([]);
@@ -53,7 +55,7 @@ export default function BasicTable() {
       setNotification({ message: `User created successfully`, severity: 'success' });
       setOpenSnackbar(true);
       setShowForm(false);
-      setNewUser({ name: '', email: '', password: '' });  // Reset the form
+      setNewUser({ name: '', email: '', password: '' });
     } catch (error) {
       console.error("Error creating user:", error);
     }
@@ -102,7 +104,48 @@ export default function BasicTable() {
 
   return (
     <div>
-      <Snackbar
+ 
+      
+{showForm && (
+  <div style={{ marginTop: '20px', marginBottom: '20px'  }}>
+      <TextField
+          label="Name"
+          value={newUser.name}
+          onChange={e => handleInputChange('name', e.target.value)}
+          margin="normal"
+          fullWidth
+          style={{ marginBottom: '20px' }}
+      />
+      <TextField
+          label="Email"
+          value={newUser.email}
+          onChange={e => handleInputChange('email', e.target.value)}
+          margin="normal"
+          fullWidth
+          style={{ marginBottom: '20px' }}
+      />
+      <TextField
+          label="Password"
+          type="password"
+          value={newUser.password}
+          onChange={e => handleInputChange('password', e.target.value)}
+          margin="normal"
+          fullWidth
+          style={{ marginBottom: '20px' }}
+      />
+
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={handleAddUser} 
+        style={{ marginRight: '10px' }}
+      >
+          Submit
+      </Button>
+  </div>
+)}
+
+<Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
@@ -117,35 +160,7 @@ export default function BasicTable() {
         {showForm ? 'Cancel' : 'Add New User'}
       </Button>
 
-      {showForm && (
-        <div>
-          <TextField
-            label="Name"
-            value={newUser.name}
-            onChange={e => handleInputChange('name', e.target.value)}
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            value={newUser.email}
-            onChange={e => handleInputChange('email', e.target.value)}
-            margin="normal"
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={newUser.password}
-            onChange={e => handleInputChange('password', e.target.value)}
-            margin="normal"
-          />
-          {/* Add other fields if required */}
-          <Button variant="contained" color="primary" onClick={handleAddUser} style={{ marginTop: '30px' }}>
-            Submit
-          </Button>
-        </div>
-      )}
-
-      <TableContainer component={Paper}>
+      <TableContainer style={{ marginTop: '20px' }} component={Paper}>
         <Table sx={{ minWidth: 500 }} aria-label="users table">
           <TableHead>
             <TableRow>
@@ -160,10 +175,6 @@ export default function BasicTable() {
               <TableCell align="right">
                 <GroupIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
                 User Type
-              </TableCell>
-              <TableCell align="right">
-                <PortfolioIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
-                Balance
               </TableCell>
               <TableCell align="right">
                 <ActionIcon style={{ marginRight: '5px', verticalAlign: 'middle' }} />
@@ -197,6 +208,7 @@ export default function BasicTable() {
       <TableCell align="right">
         {editingId === user.id ? (
           <TextField
+            color='green'
             value={editedUser.usertype}
             onChange={e => handleEditChange('usertype', e.target.value)}
           />
@@ -205,23 +217,13 @@ export default function BasicTable() {
         )}
       </TableCell>
       <TableCell align="right">
-        {editingId === user.id ? (
-          <TextField
-            value={editedUser.portfolio}
-            onChange={e => handleEditChange('portfolio', e.target.value)}
-          />
-        ) : (
-          user.portfolio
-        )}
-      </TableCell>
-      <TableCell align="right">
-        {editingId === user.id ? (
-          <Button onClick={() => handleEdit(user.id)}>Save</Button>
-        ) : (
-          <Button onClick={() => startEdit(user)}>Edit</Button>
-        )}
-        <Button onClick={() => handleDelete(user.id)}>Delete</Button>
-      </TableCell>
+    {editingId === user.id ? (
+        <Button onClick={() => handleEdit(user.id)}>Save</Button>
+    ) : (
+        <Button style={{ marginRight: '10px' }} onClick={() => startEdit(user)}>Edit</Button>  // <-- Added margin here
+    )}
+    <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={() => handleDelete(user.id)}>Delete</Button>
+</TableCell>
     </TableRow>
   ))}
 </TableBody>

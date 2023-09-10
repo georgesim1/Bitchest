@@ -47,12 +47,11 @@ const Login = () => {
     }
 
     return (
-        <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
-            <div className="w-full p-6 m-auto bg-grey rounded-md shadow-md lg:max-w-xl">
-                {/* Display the logo */}
+        <div className="relative flex flex-col justify-center min-h-screen overflow-hidden bg-gray-200">
+            <div className="w-full p-6 m-auto bg-grey rounded-md shadow-md lg:max-w-xl bg-white">
                 <img src='/assets/bitchest_logo.png' alt="Logo" />
                 
-                <form onSubmit={handleLogin} className="mt-6">
+                <form onSubmit={handleLogin} className="mt-6 ">
                     <div className="mb-2">
                         <label className="block text-sm font-semibold text-gray-800">Email</label>
                         <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputStyles} />

@@ -14,13 +14,13 @@ class CryptoWalletTableSeeder extends Seeder
 
         foreach ($wallets as $wallet) {
             foreach ($cryptocurrencies as $crypto) {
-                $amount = mt_rand(1, 10000) / 100; // Random amount. Adjust as needed.
+                $amount = mt_rand(1, 10000) / 100;
 
-                DB::table('crypto_wallets')->insert([ // Notice the correct table name here
+                DB::table('crypto_wallets')->insert([
                     'wallet_id' => $wallet->id,
                     'crypto_id' => $crypto->id,
                     'amount' => $amount,
-                    'global_value' => $amount * mt_rand(10, 1000) / 100, // Example value, adjust as needed
+                    'global_value' => $amount * mt_rand(10, 1000) / 100, 
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
