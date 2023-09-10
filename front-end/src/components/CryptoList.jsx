@@ -149,20 +149,6 @@ function CryptoList() {
         }
     };
     
-    
-
-    const handleSell = async (crypto) => {
-        try {
-            const response = await axios.post('http://localhost:8000/api/transaction/sell', { cryptoId: crypto.id });
-            setSnackbarMessage(response.data.message);
-            setSnackbarOpen(true);
-        } catch (error) {
-            console.error('Error selling crypto:', error);
-            setSnackbarMessage('Error selling crypto.');
-            setSnackbarOpen(true);
-        }
-    };
-
     return (
         <Box p={3}>
             <Typography variant="h4" gutterBottom>
@@ -187,11 +173,10 @@ function CryptoList() {
                                 <Typography variant="h5" component="div">
                                     {crypto.name}
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
+                                <Typography variant="h6" color="textSecondary">
                                     ${crypto.price}
                                 </Typography>
-                                <Button color="primary" onClick={() => handleOpenBuyDialog(crypto)}>Buy</Button>
-                                <Button color="secondary" onClick={() => handleSell(crypto)}>Sell</Button>
+                                <Button variant="contained" color="primary" onClick={() => handleOpenBuyDialog(crypto)}>Buy</Button>
                             </CardContent>
                         </Card>
                     </Grid>

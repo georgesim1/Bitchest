@@ -55,7 +55,7 @@ public function transactions() {
 
 public function cryptos()
 {
-    return $this->belongsToMany(Cryptocurrency::class)->withPivot('quantity')->withTimestamps();
+    return $this->belongsToMany(Cryptocurrency::class)->withPivot('quantity');
 }
 
 

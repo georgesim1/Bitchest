@@ -17,7 +17,7 @@ class Wallet extends Model
     // Define the relationship to cryptocurrencies
     public function cryptoHoldings()
     {
-        return $this->hasMany(CryptoWallet::class);
+        return $this->hasMany(crypto_wallet::class);
             
     }
 }

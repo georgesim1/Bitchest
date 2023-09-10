@@ -75,41 +75,46 @@ class TransactionController extends Controller
     public function sell(Request $request)
     {
         $userId = $request->input('user_id');
-        $cryptoId = $request->input('crypto_id');
+        $cryptoName = $request->input('crypto_id'); // Note: This variable name was a bit misleading. I assume it contains the name, not ID.
         $quantity = $request->input('quantity');
-
+    
         $user = User::find($userId);
-        $crypto = Cryptocurrency::find($cryptoId);
-
+        $crypto = Cryptocurrency::where('name', $cryptoName)->first();
+    
         if ($crypto === null) {
             return response()->json(['message' => 'Cryptocurrency not found'], 404);
         }
-
-        $ownedCrypto = $user->cryptos()->where('cryptocurrency_id', $cryptoId)->first();
-
-        if(!$ownedCrypto || $ownedCrypto->pivot->quantity < $quantity) {
+    
+        // Fetch the cryptocurrency the user owns using the ID (not the name)
+        $ownedCrypto = $user->cryptos()->where('cryptocurrency_id', $crypto->id)->first();
+    
+        if (!$ownedCrypto) {
+            return response()->json(['message' => 'Cryptocurrency not owned by the user'], 400);
+        }
+    
+        if ($ownedCrypto->pivot->quantity < $quantity) {
             return response()->json(['message' => 'Not enough crypto to sell'], 400);
         }
-
+    
         $totalAmount = $crypto->price * $quantity;
         $user->wallet->balance += $totalAmount;
         $user->wallet->save();
-
+    
         $ownedCrypto->pivot->quantity -= $quantity;
         $ownedCrypto->pivot->save();
-
-        if($ownedCrypto->pivot->quantity <= 0) {
-            $user->cryptos()->detach($cryptoId);
+    
+        if ($ownedCrypto->pivot->quantity <= 0) {
+            $user->cryptos()->detach($crypto->id); // Use the ID for detach
         }
-
+    
         Transaction::create([
             'user_id' => $userId,
-            'cryptocurrency_id' => $cryptoId,
+            'cryptocurrency_id' => $crypto->id, // Use the ID here as well
             'amount' => $quantity,
             'price_at_transaction' => $crypto->price,
             'transaction_type' => 'sell'
         ]);
-
+    
         return response()->json(['message' => 'Successfully sold']);
     }
 }

@@ -57,7 +57,7 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:6',
-            'usertype' => 'sometimes|string|max:255', // Adding usertype validation
+            'usertype' => 'sometimes|string|max:255', 
         ]);
     
         $user->update($validatedData);
