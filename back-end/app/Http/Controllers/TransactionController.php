@@ -25,28 +25,32 @@ class TransactionController extends Controller
 
     public function buy(Request $request)
     {
+         // Get required data from the request
         $userId = $request->input('userId');
         $cryptoId = $request->input('cryptoId');
         $quantity = $request->input('quantity');
 
         Log::info('Quantity: ' . $quantity);
 
+        // Fetch the user from the database using the provided ID.
         $user = User::find($userId);
+        // If user not found, return a 404 Not Found error.
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
+        // Fetch the cryptocurrency using the provided ID.
         $crypto = Cryptocurrency::where('id', $cryptoId)->first();
 
         if ($crypto === null) {
             return response()->json(['message' => 'Cryptocurrency not found'], 404);
         }
 
+        // Calculate the total price of the purchase.
         $totalPrice = $crypto->price * $quantity;
         if($user->wallet->balance < $totalPrice) {
             return response()->json(['message' => 'Insufficient balance'], 400);
         }
-
+        // Deduct the total price from the user's wallet balance.
         $wallet = $user->wallet;
         $wallet->balance -= $totalPrice;
         $wallet->save();

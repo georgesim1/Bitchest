@@ -56,9 +56,10 @@ Route::middleware(['auth:sanctum'])->delete('/users/{id}', [UserController::clas
 // Get user's wallet data
 Route::get('/user-wallet', [CryptoController::class, 'getUserWallet']);
 
-
+// Get transaction table
 Route::get('/transactions', [TransactionController::class, 'index']);
 
+// Buying and selling transactions
 Route::post('/transaction/buy', [TransactionController::class, 'buy']);
 Route::post('/transaction/sell', [TransactionController::class, 'sell']);
 

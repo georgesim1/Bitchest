@@ -98,16 +98,6 @@ function ResponsiveDrawer(props) {
                             </ListItemButton>
                         </ListItem>
                     </Link>
-                    <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <ListItem disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <AccountBoxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Mon Profile" />
-                            </ListItemButton>
-                        </ListItem>
-                    </Link>
                     <Link to="/crypto-list" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <ListItem disablePadding>
                             <ListItemButton>
