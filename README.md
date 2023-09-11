@@ -59,6 +59,9 @@ Pour effectuer des tests, exécutez la commande suivante
 
 **Lancement du front-end**
 ```bash
+  npm install
+```
+```bash
   npm run dev
 ```
 
