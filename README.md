@@ -53,9 +53,27 @@ Login : Administrateurs et clients se connectent via la même page.
 Pour effectuer des tests, exécutez la commande suivante
 
 **Lancement du serveur back-end**
-```bash
-  php artisan serve
-```
+Installez les dépendances avec Composer et npm.
+
+<code>composer install</code>
+<code>npm install </code>
+Copiez le fichier .env.example en .env et modifiez-le pour correspondre à votre configuration de base de données.
+
+<code>cp .env.example .env</code>
+Générez une nouvelle clé d'application.
+
+<code>php artisan key:generate</code>
+Exécutez les migrations pour créer les tables dans votre base de données.
+
+<code>php artisan migrate</code>
+Exécutez les seeders pour remplir les tables avec des données initiales.
+
+<code>php artisan db:seed</code>
+Utilisation
+Pour lancer le serveur de développement, exécutez :
+
+<code>php artisan serve</code>
+Ouvrez votre navigateur et accédez à http://localhost:8000.
 
 **Lancement du front-end**
 ```bash
