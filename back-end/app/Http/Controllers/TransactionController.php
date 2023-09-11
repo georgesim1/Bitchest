@@ -75,7 +75,7 @@ class TransactionController extends Controller
     public function sell(Request $request)
     {
         $userId = $request->input('user_id');
-        $cryptoName = $request->input('crypto_id'); // Note: This variable name was a bit misleading. I assume it contains the name, not ID.
+        $cryptoName = $request->input('crypto_id');
         $quantity = $request->input('quantity');
     
         $user = User::find($userId);
@@ -85,7 +85,6 @@ class TransactionController extends Controller
             return response()->json(['message' => 'Cryptocurrency not found'], 404);
         }
     
-        // Fetch the cryptocurrency the user owns using the ID (not the name)
         $ownedCrypto = $user->cryptos()->where('cryptocurrency_id', $crypto->id)->first();
     
         if (!$ownedCrypto) {
@@ -104,12 +103,12 @@ class TransactionController extends Controller
         $ownedCrypto->pivot->save();
     
         if ($ownedCrypto->pivot->quantity <= 0) {
-            $user->cryptos()->detach($crypto->id); // Use the ID for detach
+            $user->cryptos()->detach($crypto->id);
         }
     
         Transaction::create([
             'user_id' => $userId,
-            'cryptocurrency_id' => $crypto->id, // Use the ID here as well
+            'cryptocurrency_id' => $crypto->id,
             'amount' => $quantity,
             'price_at_transaction' => $crypto->price,
             'transaction_type' => 'sell'

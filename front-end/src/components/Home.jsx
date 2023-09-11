@@ -66,8 +66,10 @@ export default function BasicTable() {
   };
 
   const startEdit = (user) => {
-    setEditingId(user.id);
+    console.log(user);
     setEditedUser(user);
+    setEditingId(user.id);
+   
   };
 
   const handleEditChange = (field, value) => {
@@ -191,6 +193,7 @@ export default function BasicTable() {
             value={editedUser.name}
             onChange={e => handleEditChange('name', e.target.value)}
           />
+          
         ) : (
           user.name
         )}
@@ -201,6 +204,7 @@ export default function BasicTable() {
             value={editedUser.email}
             onChange={e => handleEditChange('email', e.target.value)}
           />
+          
         ) : (
           user.email
         )}
@@ -208,7 +212,7 @@ export default function BasicTable() {
       <TableCell align="right">
         {editingId === user.id ? (
           <TextField
-            color='green'
+           
             value={editedUser.usertype}
             onChange={e => handleEditChange('usertype', e.target.value)}
           />
@@ -220,7 +224,7 @@ export default function BasicTable() {
     {editingId === user.id ? (
         <Button onClick={() => handleEdit(user.id)}>Save</Button>
     ) : (
-        <Button style={{ marginRight: '10px' }} onClick={() => startEdit(user)}>Edit</Button>  // <-- Added margin here
+        <Button style={{ marginRight: '10px' }} onClick={() => startEdit(user)}>Edit</Button>
     )}
     <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={() => handleDelete(user.id)}>Delete</Button>
 </TableCell>

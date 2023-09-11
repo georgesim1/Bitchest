@@ -31,13 +31,13 @@ function ResponsiveDrawer(props) {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [userType, setUserType] = useState(null);
+    const [userName, setUserName] = useState(null);
     const [balance, setPortfolio] = useState(null);
 
  
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
-        setUserType(user?.usertype);
+        setUserName(user?.name);
     }, []);
     
     const fetchPortfolioBalance = async () => {
@@ -80,9 +80,9 @@ function ResponsiveDrawer(props) {
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <img src='/assets/bitchest_logo.png' alt="Logo" />
 
-        {userType && (
+        {userName && (
             <Box sx={{ padding: 2, bgcolor: '#f5f5f5' }}>
-                User Type: {userType}
+                Welcome : {userName}
             </Box>
         )}
             <Divider />
