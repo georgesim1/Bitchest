@@ -47,3 +47,20 @@ Le portefeuille : Chaque client a un aperçu des crypto-monnaies qu'il possède,
 Login : Administrateurs et clients se connectent via la même page.
 
 **Interface privée** : L'administration suit un zoning précis avec une colonne A pour les actions et une zone B pour le contenu de chaque page.
+
+## Running Tests
+
+To run tests, run the following command
+
+**Back-end**
+```bash
+  php artisan serve
+```
+
+**Front-end**
+```bash
+  npm run dev
+```
+
+
+
