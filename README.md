@@ -48,16 +48,16 @@ Login : Administrateurs et clients se connectent via la même page.
 
 **Interface privée** : L'administration suit un zoning précis avec une colonne A pour les actions et une zone B pour le contenu de chaque page.
 
-## Running Tests
+## 🛠 Lancement du projet
 
-To run tests, run the following command
+Pour effectuer des tests, exécutez la commande suivante
 
-**Back-end**
+**Lancement du serveur back-end**
 ```bash
   php artisan serve
 ```
 
-**Front-end**
+**Lancement du front-end**
 ```bash
   npm run dev
 ```
